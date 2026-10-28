@@ -37,6 +37,14 @@ describe("listExtensionCatalog", () => {
 				tools: ["web_search", "fetch_content", "get_search_content"],
 				hasChildExtensions: true,
 			},
+			{
+				name: "claude-code",
+				title: "Claude Code subscription",
+				description: expect.any(String),
+				enabled: true,
+				tools: [],
+				hasChildExtensions: false,
+			},
 		]);
 		const [visualize, ask] = await listExtensionCatalog(new Set(["visualize", "retired"]));
 		expect(visualize?.enabled).toBe(false);

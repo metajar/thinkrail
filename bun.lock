@@ -339,6 +339,8 @@
         "@stroncium/procfs": "1.2.1",
         "@thinkrail/contracts": "workspace:*",
         "@thinkrail/ext-ask-user-question": "workspace:*",
+        "@thinkrail/ext-claude-code": "workspace:*",
+        "@thinkrail/ext-claude-code": "workspace:*",
         "@thinkrail/ext-visualize": "workspace:*",
         "@thinkrail/ext-web-access": "workspace:*",
         "@thinkrail/extension-api": "workspace:*",
@@ -486,6 +488,19 @@
         "@earendil-works/pi-coding-agent": "catalog:",
         "@types/bun": "catalog:",
         "@types/react": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "thinkrail-extensions/claude-code": {
+      "name": "@thinkrail/ext-claude-code",
+      "version": "0.0.0",
+      "dependencies": {
+        "@earendil-works/pi-ai": "catalog:",
+        "@thinkrail/extension-api": "workspace:*",
+      },
+      "devDependencies": {
+        "@earendil-works/pi-coding-agent": "catalog:",
+        "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -1260,6 +1275,8 @@
     "@thinkrail/desktop": ["@thinkrail/desktop@workspace:apps/desktop"],
 
     "@thinkrail/ext-ask-user-question": ["@thinkrail/ext-ask-user-question@workspace:thinkrail-extensions/ask-user-question"],
+
+    "@thinkrail/ext-claude-code": ["@thinkrail/ext-claude-code@workspace:thinkrail-extensions/claude-code"],
 
     "@thinkrail/ext-visualize": ["@thinkrail/ext-visualize@workspace:thinkrail-extensions/visualize"],
 

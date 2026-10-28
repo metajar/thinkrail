@@ -22,6 +22,7 @@
 		"@thinkrail/contracts": "workspace:*",
 		"@thinkrail/ext-ask-user-question": "workspace:*",
 		"@thinkrail/ext-visualize": "workspace:*",
+		"@thinkrail/ext-claude-code": "workspace:*",
 		"@thinkrail/ext-web-access": "workspace:*",
 		"@thinkrail/extension-api": "workspace:*",
 		"@thinkrail/locales": "workspace:*",
