@@ -287,14 +287,23 @@ export function streamClaudeCode(
 			// Own process group on POSIX so a stop takes the CLI's helpers down with it and closes the pipes.
 			detached: posix,
 		});
-		const stopChild = () => {
+		let stopping = false;
+		const signalChild = (signal: NodeJS.Signals) => {
 			try {
-				if (posix && child.pid) process.kill(-child.pid, "SIGTERM");
-				else child.kill("SIGTERM");
+				if (posix && child.pid) process.kill(-child.pid, signal);
+				else child.kill(signal);
 			} catch {
 				// Already exited.
 			}
 		};
+		const stopChild = () => {
+			stopping = true;
+			signalChild("SIGTERM");
+		};
+		// A helper forked while the SIGTERM was in flight survives it and holds stdout open, so `close` never fires.
+		child.on("exit", () => {
+			if (stopping) signalChild("SIGKILL");
+		});
 		const onAbort = () => stopChild();
 		options?.signal?.addEventListener("abort", onAbort, { once: true });
 

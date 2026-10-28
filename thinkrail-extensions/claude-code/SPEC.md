@@ -26,6 +26,8 @@ is the credential, so no Anthropic API key is needed.
 - Tools: pi tools are offered through a text protocol (`<tool_call name="...">{json}</tool_call>`) and any native
   `tool_use` block the CLI emits is captured as a tool call; the CLI is stopped before its own loop runs (the
   CLI cannot execute pi tools, so it must not try).
+- Stopping the CLI (native tool call or abort) sends SIGTERM to its process group, then SIGKILL to the group once the
+  CLI exits: a helper forked while the SIGTERM was in flight otherwise survives and holds stdout open, hanging the turn.
 - Each call is stateless: the full transcript is sent on stdin; the CLI runs with `--tools ""`,
   `--no-session-persistence`, from `~/.thinkrail/claude-code-provider`.
 - Effort: models declare `reasoning: true` with a `thinkingLevelMap` of `low`…`max` (`off`/`minimal` unsupported,
