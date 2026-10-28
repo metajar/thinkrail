@@ -1,11 +1,12 @@
 import { describe, expect, test } from "bun:test";
-import { chmodSync, mkdtempSync, writeFileSync } from "node:fs";
+import { chmodSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
 	type AssistantMessageEvent,
 	type Message,
 	normalizeContext,
+	type SimpleStreamOptions,
 	type Tool,
 } from "@earendil-works/pi-ai";
 import { childEnv, parseToolCalls, renderTranscript, streamClaudeCode } from "./claudeCodeProvider";
@@ -169,6 +170,37 @@ printf '%s\n' '{"type":"user","message":"should never be read"}'
 					arguments: { id: "a1" },
 				});
 			}
+		} finally {
+			delete process.env.THINKRAIL_CLAUDE_BIN;
+		}
+	});
+
+	test("passes the selected thinking level to the CLI as --effort", async () => {
+		const dir = mkdtempSync(join(tmpdir(), "cc-fake-"));
+		const bin = join(dir, "claude");
+		const argsFile = join(dir, "args");
+		writeFileSync(
+			bin,
+			`#!/usr/bin/env bash
+cat > /dev/null
+printf '%s\\n' "$@" > ${JSON.stringify(argsFile)}
+printf '%s\\n' '{"type":"result","subtype":"success","is_error":false,"result":"ok","usage":{"input_tokens":1,"output_tokens":1}}'
+`,
+		);
+		chmodSync(bin, 0o755);
+		process.env.THINKRAIL_CLAUDE_BIN = bin;
+		const context = normalizeContext({
+			messages: [{ role: "user", content: "hi", timestamp: 1 }],
+		});
+		const argsFor = async (options?: SimpleStreamOptions) => {
+			await collect(streamClaudeCode({ id: "opus" }, context, options));
+			return readFileSync(argsFile, "utf8").split("\n");
+		};
+		try {
+			const xhigh = await argsFor({ reasoning: "xhigh" });
+			expect(xhigh[xhigh.indexOf("--effort") + 1]).toBe("xhigh");
+			expect(await argsFor()).not.toContain("--effort");
+			expect(await argsFor({ reasoning: "minimal" })).not.toContain("--effort");
 		} finally {
 			delete process.env.THINKRAIL_CLAUDE_BIN;
 		}

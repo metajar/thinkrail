@@ -28,6 +28,8 @@ is the credential, so no Anthropic API key is needed.
   CLI cannot execute pi tools, so it must not try).
 - Each call is stateless: the full transcript is sent on stdin; the CLI runs with `--tools ""`,
   `--no-session-persistence`, from `~/.thinkrail/claude-code-provider`.
+- Effort: models declare `reasoning: true` with a `thinkingLevelMap` of `low`…`max` (`off`/`minimal` unsupported,
+  matching the CLI); the selected level is passed as `claude --effort <level>`.
 - Binary: `THINKRAIL_CLAUDE_BIN`, else `claude` on PATH, else `~/.local/bin/claude`.
 - Cost is reported as zero (subscription); token usage is reported from the CLI result.
 

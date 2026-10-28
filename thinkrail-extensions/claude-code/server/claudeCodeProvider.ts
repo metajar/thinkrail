@@ -3,6 +3,7 @@ import { existsSync, mkdirSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import {
+	type Api,
 	type AssistantMessage,
 	type AssistantMessageEvent,
 	type AssistantMessageEventStream,
@@ -10,6 +11,7 @@ import {
 	getCurrentSystemPrompt,
 	getCurrentTools,
 	type Message,
+	type Model,
 	type SimpleStreamOptions,
 	type Tool,
 	type ToolCall,
@@ -27,12 +29,23 @@ export const CLAUDE_CODE_PROVIDER = "claude-code";
 export const CLAUDE_CODE_API = "claude-code-cli";
 /** Non-secret placeholder: pi requires an apiKey when models are defined; the CLI's own login is the credential. */
 const PLACEHOLDER_KEY = "claude-code-cli-login";
+/** pi thinking level → `claude --effort` value; the CLI has no off/minimal setting. */
+const EFFORT_LEVEL_MAP = {
+	off: null,
+	minimal: null,
+	low: "low",
+	medium: "medium",
+	high: "high",
+	xhigh: "xhigh",
+	max: "max",
+} satisfies Model<Api>["thinkingLevelMap"];
 
 const MODELS: ProviderModelConfig[] = [
 	{
 		id: "sonnet",
 		name: "Claude Sonnet (Claude Code subscription)",
-		reasoning: false,
+		reasoning: true,
+		thinkingLevelMap: EFFORT_LEVEL_MAP,
 		input: ["text"],
 		cost: zeroCost(),
 		contextWindow: 200_000,
@@ -41,7 +54,8 @@ const MODELS: ProviderModelConfig[] = [
 	{
 		id: "opus",
 		name: "Claude Opus (Claude Code subscription)",
-		reasoning: false,
+		reasoning: true,
+		thinkingLevelMap: EFFORT_LEVEL_MAP,
 		input: ["text"],
 		cost: zeroCost(),
 		contextWindow: 200_000,
@@ -50,7 +64,8 @@ const MODELS: ProviderModelConfig[] = [
 	{
 		id: "haiku",
 		name: "Claude Haiku (Claude Code subscription)",
-		reasoning: false,
+		reasoning: true,
+		thinkingLevelMap: EFFORT_LEVEL_MAP,
 		input: ["text"],
 		cost: zeroCost(),
 		contextWindow: 200_000,
@@ -262,6 +277,8 @@ export function streamClaudeCode(
 			"",
 			"--no-session-persistence",
 		];
+		const effort = options?.reasoning ? EFFORT_LEVEL_MAP[options.reasoning] : null;
+		if (effort) args.push("--effort", effort);
 		const posix = process.platform !== "win32";
 		const child = spawn(resolveClaudeBinary(), args, {
 			cwd,
